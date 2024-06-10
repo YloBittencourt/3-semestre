@@ -1,0 +1,245 @@
+/* Implementação base de uma lista simplesmente encadeada circular
+com números inteiros. Usem essa implementação para possíveis adaptações*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct elemento{
+	int valor;
+	struct elemento *prox;
+};
+
+typedef struct elemento No;
+typedef struct elemento * Pno;
+
+
+/* verifica se é vazia. Se sim, retorna 1; se não, retorna 0. */
+int vazia (Pno inicio){
+	if (inicio==NULL)
+		return 1;
+	else
+		return 0;
+}
+
+
+/* Percorre e imprimir lista. Recebe o início da lista*/
+void mostrarLista(Pno inicio){
+	Pno atual;
+	atual = inicio;
+	if (!vazia(inicio)){
+		do {
+			printf("%d ", atual->valor);
+			atual = atual->prox;
+		} while (atual != inicio);
+	}
+}
+
+//recebe dados(valor) e retorna um elemento com este dado
+Pno criaElemento (int valor){
+	Pno novo;
+	novo = (Pno) malloc (sizeof(No));
+
+	novo->valor=valor;
+	novo->prox=NULL;
+
+	return novo;
+}
+
+
+/*Percebam que aqui, nós iremos/podemos mudar os conteúdos dos ponteiros inicio e novo.
+ Por isso precisamos passa-los como ponteiros. 
+ Portanto temos ponteiros de ponteiro: struct elemento ** inicio ou Pno *inicio */
+void insereInicio (Pno *inicio, Pno *novo){
+	Pno ultimo=*inicio;
+	
+	if (vazia(*inicio)){
+		*inicio = *novo;
+		(*inicio)->prox=*inicio; //mantem propriedade circular
+	}
+	else {
+		(*novo)->prox=*inicio;
+		
+		//encontrar o ultimo elemento
+		while (ultimo->prox != *inicio)
+			ultimo=ultimo->prox;
+			
+		*inicio=*novo;
+		ultimo->prox=*inicio; //mantem a propriedade circular
+	}
+}
+
+void insereFim (Pno *inicio, Pno *novo){
+	Pno ultimo;
+
+	if (vazia(*inicio)){
+		*inicio = *novo;
+		(*inicio)->prox=*inicio; //mantem a propriedade circular
+	}
+	else {
+		//percorre ate encontrar ultimo
+		ultimo = *inicio;
+		while (ultimo->prox != *inicio) 
+			ultimo = ultimo->prox;
+
+		ultimo->prox=*novo;
+		(*novo)->prox=*inicio; //mantem a propriedade circular
+	}
+}
+
+
+void insereOrdenado(Pno *inicio, Pno *novo){
+	Pno anterior;
+
+	if (vazia(*inicio)){
+		*inicio = *novo;
+		(*inicio)->prox=*inicio; //mantem a propriedade circular
+	}
+	else {
+		//anterior será último elemento menor que novo.
+		anterior = *inicio;
+		//se prox do anterior ainda é menor que novo, então anda pra frente
+		while ((anterior-> prox != *inicio) && 
+								(anterior->prox->valor < (*novo)->valor))
+			anterior = anterior->prox;
+
+		(*novo)->prox = anterior->prox;
+		anterior->prox = *novo;
+	}
+}
+
+void removeInicio(Pno *inicio){
+	if (!vazia(*inicio)){
+		Pno alvo = *inicio;
+		Pno ultimo =*inicio;
+		
+		// encontra o último para modificar o apontamento dele
+		while (ultimo->prox!=*inicio)
+			ultimo=ultimo->prox;
+			
+		*inicio = alvo->prox;
+		ultimo->prox=*inicio; //aponta para o "novo" inicio
+		free(alvo);
+	}
+}
+
+void removeFim(struct elemento **inicio){
+	Pno alvo = *inicio;
+	Pno anterior = *inicio;
+	
+	if (!vazia(*inicio)){
+		while (alvo->prox != *inicio){
+			anterior = alvo;		
+			alvo = alvo->prox;
+		}
+		if (alvo==*inicio)
+		    *inicio=NULL;
+		anterior->prox=*inicio;
+		free(alvo);
+	}
+}
+
+//Precisamos encotrar o anterior ao alvo
+void removeAlvo (Pno *inicio, Pno *alvo){
+	Pno anterior = *inicio;
+	Pno ultimo = *inicio;
+	
+	if (!vazia(*inicio)){
+		if (*inicio==*alvo){ // se alvo é elemento do início
+			if ((*inicio)->prox==*inicio){ //se tem apenas 1 elemento
+				free(*inicio);
+				*inicio=NULL;
+			}
+			else {
+				while (ultimo->prox!=*inicio)
+					ultimo=ultimo->prox;
+				
+				*inicio=(*inicio)->prox;
+				ultimo->prox=*inicio; //aponta para o novo inicio
+				free(*alvo);
+			}
+		}
+		else {
+			while (anterior->prox != *alvo)
+				anterior = anterior->prox;
+			
+			anterior->prox=(*alvo)->prox;	
+			free(*alvo);
+		}
+	}
+	
+}
+
+// busca (retorna o endereço) o elemento que tem valor x
+Pno busca(Pno *inicio, int x){
+	Pno alvo = *inicio;
+	
+	do {
+		if (alvo->valor==x)
+			return alvo;
+		alvo = alvo->prox;
+	} while(alvo != *inicio);
+
+	return NULL;
+	
+}
+
+
+
+int main (){
+	Pno inicio1=NULL;
+	Pno inicio2=NULL;
+	Pno inicio3=NULL;
+	Pno novo;
+
+
+	//TRECHO PARA INSERÇÕES EM 2 LISTAS
+	novo=criaElemento(0);
+	insereInicio(&inicio1, &novo);
+	novo=criaElemento(1);
+	insereInicio(&inicio1, &novo);
+	novo=criaElemento(2);
+	insereInicio(&inicio1, &novo);
+	novo=criaElemento(3);
+	insereFim(&inicio1, &novo);
+	printf("Lista 1: ");
+	mostrarLista(inicio1);
+	printf("\n");
+
+	novo=criaElemento(2);
+	insereInicio(&inicio2, &novo);
+	novo=criaElemento(3);
+	insereInicio(&inicio2, &novo);
+	novo=criaElemento(4);
+	insereInicio(&inicio2, &novo);
+	printf("Lista 2: ");
+	mostrarLista(inicio2);
+
+	novo=criaElemento(2);
+	insereOrdenado(&inicio3, &novo);
+	novo=criaElemento(5);
+	insereOrdenado(&inicio3, &novo);
+	novo=criaElemento(3);
+	insereOrdenado(&inicio3, &novo);
+	printf("\nLista 3: ");
+	mostrarLista(inicio3);
+
+
+	removeInicio(&inicio3);
+	printf("\nLista 3 apos remoção no inicio: ");
+	mostrarLista(inicio3);
+	
+	removeFim(&inicio3);
+	printf("\nLista 3 apos remoção no fim: ");
+	mostrarLista(inicio3);
+
+
+	//removendo um elemento específico da lista 1
+	novo=busca(&inicio1, 1);
+	removeAlvo(&inicio1, &novo);
+	printf("\nLista 1 apos remoção do valor 1: ");
+	mostrarLista(inicio1);
+	
+	
+	return 0;
+}

@@ -1,0 +1,8 @@
+Implemente a codificação de huffman. Para uma entrada de texto (em uma única linha, sem acento e sem pontuação):
+a) monte a árvore
+b) mostre a frequência e o código para cada caractere 
+c) mostre o texto codificado
+- comente o código, gere um relatório em pdf mostrando seu código, um exemplo de entrada e suas saídas e suas saídas para os passos a, b e c.
+
+Implementação pode ser em C ou Python, deve usar uma lista (ou vetor) + árvore. 
+O trabalho pode ser individual ou em dupla.
