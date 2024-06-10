@@ -1,0 +1,138 @@
+//Tema: Consulta Médica
+package com.mycompany.projeto;
+
+//Usando swing para produzir interface
+//Importando os pacotes necessários 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+//Criação de uma classe utilizando herança (sendo herdada da classe JFrame)
+public class ConsultaMedicaInterface extends JFrame {
+
+//Collection para armazenar as consultas médicas
+    private DefaultListModel<String> listaConsultas;
+    private JTextField nomePacienteField, nomeMedicoField, dataConsultaField;
+
+    public ConsultaMedicaInterface() {
+
+//Inicializando a collection como uma DefaultListModel
+        listaConsultas = new DefaultListModel<>();
+        JList<String> lista = new JList<>(listaConsultas); // Utilização do JList conforme indicado
+        JScrollPane scrollPane = new JScrollPane(lista);
+
+//Criando os requisitos pedidos no tema(nome do paciente, nome do medico e data da consulta)
+//JTextField para adequadar o tamanho do espaço para digitar
+        nomePacienteField = new JTextField(20);
+        nomeMedicoField = new JTextField(20);
+        dataConsultaField = new JTextField(10);
+
+//Criação dos botões para inserir e consultar utilizando JButton
+//Item adicional: : Adicionamos uma opção da pessoa verificar as consultas, bastando digitar o nome do paciente e dessa forma a interface mostra todas as consultas
+        JButton btnInserir = new JButton("Inserir");
+        JButton btnConsultar = new JButton("Consultar"); //Item adicional
+
+        btnInserir.addActionListener(new ActionListener() {
+            @Override //Garantir que está sobrescrevendo o método e não criando um novo
+            public void actionPerformed(ActionEvent e) {
+                inserirConsulta();
+            }
+        });
+
+        //Item adicional
+        btnConsultar.addActionListener(new ActionListener() {
+            @Override //Garantir que está sobrescrevendo o método e não criando um novo
+            public void actionPerformed(ActionEvent e) {
+                consultarConsulta();
+            }
+        });
+
+        //JPanel para aparecer no painel(tela) os requisitos pedidos no tema
+        JPanel panel = new JPanel();
+        panel.add(new JLabel("NOME DO PACIENTE:"));
+        panel.add(nomePacienteField);
+        panel.add(new JLabel("NOME DO MÉDICO(A):"));
+        panel.add(nomeMedicoField);
+        panel.add(new JLabel("DATA DA CONSULTA (DD/MM/AAAA):"));
+        panel.add(dataConsultaField);
+        panel.add(btnInserir);
+        panel.add(btnConsultar); //Item adicional
+
+       //Alterando a dimensão e o tamanho de cada bloco
+        nomePacienteField.setPreferredSize(new Dimension(600, 20));
+        nomeMedicoField.setPreferredSize(new Dimension(600, 20));
+        dataConsultaField.setPreferredSize(new Dimension(600, 20));
+
+        btnInserir.setPreferredSize(new Dimension(80, 20));
+        btnConsultar.setPreferredSize(new Dimension(90, 20));
+
+       // Adicionando a collection à interface
+        getContentPane().add(BorderLayout.CENTER, scrollPane);
+        getContentPane().add(BorderLayout.SOUTH, panel);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1250, 600);
+        setVisible(true);
+    }
+
+  // Método para adicionar uma nova consulta à collection
+    private void inserirConsulta() {
+        String nomePaciente = nomePacienteField.getText();
+        String nomeMedico = nomeMedicoField.getText();
+        String dataConsulta = dataConsultaField.getText();
+
+//Caso ele preencha todos corretamente, ele vai receber os nomes
+//Caso falte algum (seja empty), ele vai pedir para preencher todos os campos com uma mensagem de erro
+//Isso vale para a atividade 3 (avaliar quais tipos de exceções podem ocorrer no programa e daí sinalizar quando o erro ocorrer)
+        if (!nomePaciente.isEmpty() && !nomeMedico.isEmpty() && !dataConsulta.isEmpty()) {
+            String consulta = "Paciente: " + nomePaciente + " - Médico(a): " + nomeMedico + " - Data: " + dataConsulta;
+            listaConsultas.addElement(consulta);
+
+            // Limpar campos após inserção
+            nomePacienteField.setText("");
+            nomeMedicoField.setText("");
+            dataConsultaField.setText("");
+        } else {
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+//Item adicional
+    private void consultarConsulta() {
+    String Consulta = JOptionPane.showInputDialog(this, "Digite o nome do paciente que deseja consultar:");
+
+    if (Consulta != null) {
+
+        DefaultListModel<String> resultadosConsulta = new DefaultListModel<>();
+        //Laço para percorrer as consultas
+        for (int i = 0; i < listaConsultas.size(); i++) {
+            if (listaConsultas.getElementAt(i).contains(Consulta)) {
+                resultadosConsulta.addElement(listaConsultas.getElementAt(i));
+            }
+        }
+        //Caso encontre a consulta, ele vai mandar uma mensagem no painel
+        //Se não, ele vai mandar uma mensagem que não encontrou nenhuma consulta
+        if (!resultadosConsulta.isEmpty()) {
+
+            JList<String> resultadosList = new JList<>(resultadosConsulta);
+            JScrollPane resultadosScrollPane = new JScrollPane(resultadosList);
+
+            JOptionPane.showMessageDialog(this, resultadosScrollPane, "Consulta Encontrada para " +Consulta,
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhuma consulta encontrada para o(a) paciente: " + Consulta, "Consulta Não Encontrada", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+}
+
+    public static void main(String[] args)
+    {
+        JFrame c = new ConsultaMedicaInterface();
+        c.setTitle("Consulta Médica"); //Título da interface
+        c.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);      
+        c.setBounds(200, 200, 1250, 600); //Ajustar conforme sua preferência
+        c.setVisible(true);
+    }
+}
+
